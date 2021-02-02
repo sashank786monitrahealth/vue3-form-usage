@@ -260,13 +260,35 @@ export default{
 
 Now that we have our modelValue proprty set and bound to the input attribute of the input element, let us look at the second part of the v-model two-way binding: emitting an event. 
 
+###########################
+### BaseInput.vue -- end
+###########################
 
 ##################################################
 ## v-model: Emitting the update:modelValue event
 ##################################################
 
+Adding an @input listener to our input element allows us to fire-off the required event every time the user types something into the input field. 
 
-###########################
-### BaseInput.vue -- end
-###########################
+Notice that we are passing the event's target value ($event.target.value) as the payload of the event. This is the value that the v-model will receive on the parent.
+
+Speaking of the parent, let's go back to our form and use our new BaseInput component instead of our native elements to test out our code. Let's replace the 
+ - Title 
+ - Description
+ - Location
+ 
+ inputs in our form with our new component. 
+ 
+ 
+ 
+ #################################
+ ## App.vue -- begin
+ #################################
+ 
+ 
+ 
+ ###########################
+ ## App.vue -- end
+ ###########################
+
 
