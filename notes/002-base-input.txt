@@ -1,0 +1,272 @@
+######################################
+#### Our Demo Form - Base Input
+######################################
+
+
+Throughout this course, we are building a set of reusable base form components and exploring best practices along the way. In order to build these, we will want a demo form to use as a starting form, which we will break apart into these base component. I have prepared one so that we can jump right into it.
+
+The form already includes v-model bindings into a reactive state and a categories array to power the select element.
+
+########################
+##  *SimpleForm.vue*
+########################
+
+<template>
+ <div>
+ <h1>Create an event</h1>
+ <form>
+ 
+ <label>Select a category </label>
+ <select v-model="event.category">
+ <option
+  v-for="option in categories"
+  :value="option"
+  :key="option"
+  :selected="option === event.category"
+ > {{option }}
+ </option>
+ </select>
+ 
+ <h3>Name & describe your event</h3>
+ 
+ <label>Title</label>
+ <input
+    v-model="event.title"
+    type="text"
+    placeholder="Title"
+    class="field"
+ />
+ 
+ <label>Description</label>
+ <input
+  v-model="event.description"
+  type="text"
+  placeholder="Location"
+  class="field"
+ />
+ 
+ 
+ <h3>Where is your event?</h3>
+ <label>Location</label>
+ <input
+   v-model="event.location"
+   type="text"
+   placeholder="Location"
+   class="field"
+ />
+ 
+ <h3>Are pets allowed?</h3>
+ <div>
+  <input
+    type="radio"
+    v-model="event.pets"
+    :value="0"
+    name="pets"
+  />
+  <label>No</label>
+ </div>
+ 
+ <h3>Extras</h3>
+ <div>
+ <input
+  type="checkbox"
+  v-model="event.extras.music"
+  class="field"
+ />
+ <label>Live music</label>
+ </div>
+ 
+ <button type="submit">Submit</button>
+ 
+ </form>
+ </div>
+</template>
+
+<script>
+export default{
+  data(){
+     return{
+       categories:[
+         "sustainability",
+         "nature",
+         "animal welfare",
+         "housing",
+         "education",
+         "food",
+         "community"
+       ],
+       event:{
+         category:'',
+         title:'',
+         description:'',
+         location:'',
+         pets:1,
+         extras:{
+           catering:false,
+           music:false
+         }
+       }
+     }
+  }
+}
+</script>
+
+
+###################################
+## The base input
+###################################
+
+The goal of this lesson is to create a BaseInput component. Whenever we are building forms in Vue, creating reusable components for each specific input input type will allow us to easily replicate them, modify them and also extend them. This also ensures that throughout our application forms will be consistent.
+
+Let us get started by creating the file BaseInput.vue in our components folder.
+
+We will start by copying the input element with its label, just as they currently are in the demo form, and paste that into the new components template - we are going to transform this static code into something more reusable and flexible. After all, that's the benefit of making components!
+
+###########################
+## BaseInput.vue -- begin
+###########################
+
+<template>
+<label>Title</label>
+<input
+ v-model="event.title"
+ type="text"
+ placeholder="Title"
+ class="field"
+/>
+</template>
+
+#########################
+## BaseInput.vue -- end
+#########################
+
+In Vue 3, we can have multiple root nodes. This means we can have the label and input at root level without needing to wrap them in a single root element like a div, like we had to in Vue 2.
+
+The first thing we need to do is allow our components to receive a label from the parent. To do this, we are going to create a label prop. This prop will be used not only for our label, but also as a placeholder - so it is very convinient that we only have to define it once in the parent.
+
+Let's go ahead and add the label property in the script section of our component. 
+
+###########################
+## BaseInput.vue -- begin
+###########################
+
+<script>
+export default{
+   props:{
+     label:{
+       type:String,
+       default:""
+     }
+   }
+}
+</script>
+
+###########################
+## BaseInput.vue -- end
+###########################
+
+
+Now, we can use our new label property through interpolation inside our template's label element.
+
+###########################
+## BaseInput.vue -- begin
+###########################
+
+<template>
+<label>{{label}}</label>
+<input
+ v-model="event.title"
+ type="text"
+ placeholder="Title"
+ class="field"
+/>
+</template>
+
+
+
+#########################
+## BaseInput.vue -- end
+#########################
+
+While we are at it, we are going to delete the v-model directive since we're no longer going to be using it inside the component. We will come back to use v-model later on.
+
+We will also delete type, because it will be provided as part of the attributes by the parent - remember that we want to keep the component as flexible as possible. 
+
+The user of this component may want to make it of type email or password, and the default for input is already of type text, if not declared. 
+
+Finally, let's bind the placeholder attribute to our label property as well. This will make sure that both the "hint" text inside the input and the actual label are coordinated and reactive.
+
+####################
+## BaseInput.vue
+####################
+
+<template>
+<label v-if="label"> {{label}} </label>
+<input
+ class="field"
+ :placeholder="label"
+>
+</template>
+<script>
+export default{
+  props:{
+    label: String,
+    default: ""
+  }
+}
+</script>
+
+
+
+####################################
+### v-model: Binding to the value
+####################################
+
+Now that our component has its basic structure, we can move on to adding the capability for our component to be v-model ready.
+
+By default in Vue 3, v-model expects a property named modelValue to be on your v-model-capable component. Let's go ahead and add this new property, and then bind it to the value attribute of our input.
+
+We will default it to an empty string, but will specify String and Number as the allowed types.
+
+There is a good chance that the parent may try to bind either a text or string like Hello to our input, but, it may also try to bind a numeric value, like the user's age or 30 - we need to be able to allow either to be set.
+
+###########################
+### BaseInput.vue -- begin
+###########################
+
+<template>
+<label v-if="label">{{ label }}</label>
+<input
+ :value="modelValue"
+ :placeholder="label"
+ class="field"
+>
+</template>
+<script>
+export default{
+  props:{
+    label:{
+        type:String,
+        default:""
+    },
+    modelValue:{
+       type:[String, Number],
+       default:""
+    }
+  }
+}
+</script>
+
+
+Now that we have our modelValue proprty set and bound to the input attribute of the input element, let us look at the second part of the v-model two-way binding: emitting an event. 
+
+
+##################################################
+## v-model: Emitting the update:modelValue event
+##################################################
+
+
+###########################
+### BaseInput.vue -- end
+###########################
+
