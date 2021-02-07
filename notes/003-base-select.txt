@@ -1,0 +1,10 @@
+#########################
+### Base Select
+#########################
+
+In our previous lesson we learned how to create our first reusable form component, the BaseInput.
+In this lesson we are going to learn how to build our second component, the BaseSelect.
+
+Let's dive right in!
+
+########
