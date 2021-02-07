@@ -91,11 +91,73 @@ Next, we create our Vue application by calling createApp with our App.vue compon
 # main.js
 
 
+# main.js - begin
+// ['./BaseInput.vue, './BaseSelect.vue' ]'
+requireComponent.keys().forEach(fileName => {})
+# main.js - end
+
+
+We are going to loop through each of our components in this array. Ready?
+First, we get the component object by using the filename to extract it from the array.
+
+# main.js -- begin
+
+const componentConfig = requireComponent(fileName);
+
+# main.js -- end
+
+
+Next, we use Lodash's upperFirst and camelCase functions to ensure that both file names written like BaseInput.vue and base-input.vue, or even baseInput.vue get turned into BaseInput.vue.
+
+The regular expression here will strip anything before the component name and the extension, leaving us with just the name of the component BaseInput.
+
+
+#########################
+## main.js -- begin
+#########################
+
+const componentName = upperFirst(
+                                  camelCase(fileName.replace(/^\.\/(.*)\.\w+$/,'$1'))
+)
+
+#########################
+## main.js -- end
+#########################
+
+Finally, we use the component name that we just extracted and the component configuration that we got earlier to register the component as a global component.
 
 
 
+#########################
+## main.js -- begin
+#########################
+
+app.component(componentName, componentConfig,default || componentConfig)
 
 
+#########################
+## main.js -- end
+#########################
+
+We wrap up the file by mounting our application into the element with an id of app.
+
+
+## main.js
+
+
+app.mount('#app')
+
+## main.js
+
+
+Wrapping up
+~~~~~~~~~~~
+
+This bit of code may seem daunting at first, but once you add it to your application, you can forget about it and let it handle all the busywork of importing base components for you. You just need to be aware of what it is doing, and to understand the benefits that it can bring to automatic component integratin.
+
+In our next lesson, we'll keep on building components - this time, the BaseCheckBox.
+
+See ya!
 
 
 
