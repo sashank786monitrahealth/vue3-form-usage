@@ -1,0 +1,104 @@
+#################################
+### Auto Importing Components
+#################################
+
+
+In our last two lessons, I've mentioned that our components BaseInput and BaseSelect have been magically imported without having to add an import state or adding them globally. In this lesson, we finally unravel this mystery and take a look at what's happening behind the scenes.
+
+Often inside our Vue projects we create collections of components such as these that are the "base" or building blocks, for other more complex components. In our case, we are creating a collection of base components that can be used to build forms. 
+
+Manually, importing each of them by using app.component can quickly get tedious and repititive. Luckily for us there is an automatic way of doing so.
+
+
+Lets navigate to the file main.js and take a look at what's happening there together. 
+
+## main.js -- begin
+
+import { createApp } from 'vue';
+import App from './App.vue'
+import upperFirst from 'lodash/upperFirst'
+import camelCase from 'lodash/camelCase'
+
+
+const requireComponent = require.context(
+  './components',
+  false,
+  /Base[A-Z]\w+\.(vue|js)$/
+)
+
+
+const app = createApp(App)
+
+requireComponent.keys().forEach(
+   fileName => {
+     const componentConfig = requireComponent(fileName);
+     
+     const componentName = upperFirst(
+        camelCase(fileName.replace(/^\.\/(.*)\.\w+$/, '$1'))
+     )
+     
+     app.component(componentName, componentConfig.default || componentConfig)
+     
+   })
+
+app.mount('#app')
+
+##m main.js -- end
+
+
+
+#####################################
+#### 
+#####################################
+
+First we import createApp from Vue, in order to create and later mount our application. We also import the App.vue component to set it as the entry point of our application. 
+
+Please note that this is not specific to auto-importing components, but part of the process for creating and mounting our Vue 3 application.
+
+Finally, we import upperFirst and camelCase from lodash,a JavaScript library that provides utility functions for common programming tasks.
+
+* upperCase converts the first character of a string to upper case.
+* camelCase converts a string to camel case(camelCase is written like this)
+
+
+To actually be able to use Lodash in our project, we first need to add it to our application. 
+
+We'll open up a terminal and run the following command on our project root.
+
+### 
+  npm -i save lodash
+###
+
+
+Next up, we use Webpack's function require.context to allow webpack to know that it needs  to require all of the files in the components folder that start with the Base prefix. Notice that we are also allowing it to require both .vue and .js extensions.
+
+
+# main.js -- begin 
+
+const requireComponent = require.context(
+  './components',
+  false,
+  /Base[A-Z]\w+\.(vue|js)$/
+)
+
+# main.js -- end
+
+Next, we create our Vue application by calling createApp with our App.vue component reference, and store it in an app constant so that we can reference our app context later.
+
+
+# main.js
+ const app = createApp(App)
+# main.js
+
+
+
+
+
+
+
+
+
+
+
+
+
