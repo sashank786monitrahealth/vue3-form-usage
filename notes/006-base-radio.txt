@@ -1,0 +1,139 @@
+#########################
+## Base Radio
+#########################
+
+The time has come to tackle the last of our form components for this course, the BaseRadio
+
+Radio buttons in HTML have a unique feature that we need to be aware of before we start building our component - they do not work as a single input,like a checkbox would. They live and function as part of a group of radio buttons that have a single state. 
+
+Depending on the group's state, a radio button maybe active or inactive in relation to those in its own group. 
+
+Due to this particular quirk in how radio buttons work, the BaseRadio component will also have another compoenent to group them, the BaseRadioGroup.
+
+
+############################
+## First, the BaseRadio
+############################
+
+
+We will begin the lesson by crafting our BaseRadio component. The goal is to have a flexible reusable component that wraps a single instance of a radio input, along with its label.
+
+As before, we will first create our component file, BaseRadio.vue, inside the components folder. Then copy the input-label pair for one of our checkboxes from SimpleForm.vue and paste it into the compoenent's <template> block.
+
+#### BaseRadio.vue
+<template>
+<input
+   type = "radio"
+   v-model="event.pets"
+   :value="1"
+   name="pets"
+/>
+<label>Yes</label>
+</template>
+
+#### BaseRadio.vue
+
+Next, we're going to first takle the label. So, let's go ahead and create our label prop, and bind it to the <label> tag as we have done in previous lessons.
+
+
+################
+## BaseRadio.vue -- begin
+################
+<template>
+<input
+   type="radio"
+   v-model="event.pets"
+   :value="1"
+   name="pets"
+/>
+<label v-if="label">{{label}}</label>
+</template>
+<script>
+export default {
+  props:{
+    label:{
+       type:String,
+       default:""
+    }
+  }
+}
+</script>
+
+################
+## BaseRadio.vue -- end
+################
+
+Now that the label is dynamic and bound, let's go ahead and make sure that our component can respond to v-model bindings.
+
+We will begin by creating our modelValue prop.
+
+## BaseRadio.vue -- begin
+<script>
+export default {
+  props:{
+      label:{
+         type: String,
+         default:
+      }
+  }
+}
+</script>
+
+## BaseRadio.vue -- end
+
+Notice that for the BaseRadio we have set the type of the modelValue prop to be of [String,Number]. This will tell vue that this property can accept either Strings or Numeric values.
+
+When dealing with radio buttons, each button holds the value it represents in the set. For example, if you had a group of radio buttons to select your favourite pet, one radio button would represent dog and another would represent cat.
+
+It's common for these buttons to also represent numerical values. For example, when selecting a number of guests for a hotel room, or even boolean values in their numeric format. 
+
+Let's now go ahead and bind our modelValue property to our input element. Similarly to checkboxes, radio buttons don't bind to the value property, but use the checked property instead. However, in the particular case of radiobuttons we need to check if this button is the one that is currently selected or not. 
+
+Let us go back to our favorite pet example. The modelValue of our BaseRadio elements will contain the user's preference, so either cat or dog - but we need to be able to tell this radio which one of these values it represents. 
+
+In order to do this, we're going to add a new prop to the component, the value.
+
+#### BaseRadio.vue
+
+<script>
+export default {
+  props:{
+    label:{
+        type: String,
+        default: ''
+    },
+  modelValue:{
+    type:[String, Number],
+    default:''
+  },
+  value:{
+     type:[String,Number],
+     required: true
+  }
+  }
+}
+</script>
+
+
+
+#### BaseRadio.vue
+
+<script>
+export default{
+   props:{
+      label: {
+         type: String, 
+         default: ''
+      },
+      modelValue:{
+         type:[String,Number],
+         default: ''
+      },
+      value:{
+        type: [String, Number],
+        required: true
+      }
+   }
+}
+</script>
+
