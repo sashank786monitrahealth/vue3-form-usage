@@ -1,0 +1,117 @@
+##############################################
+### Submitting forms
+##############################################
+
+Welcome Back!
+
+With all of the components that we've built in the last lessons, we can construct any type of component-powered forms. But what good is a form unless we can send the user's input to be processed or stored in our backend?
+
+In the current state of front-end development, the most common approach to submitting form data to our backend  is through XMLHTTPRequests or XHR for short. We'll talk about this more in a bit, but for now just know that Axios is a library that will allow you to create XHR Requests without having to deal with the vanilla XHR JavaScript API, which is a bit cumbersome.
+
+
+
+###################
+First things first
+###################
+
+There's some form basics we have to learn and understand before we dive into plugging Axios into our application to start making our XHR requests. Let's dig into the defaults of forms behavior, and some fundamental accessibility concepts.
+
+1. The default behavior of a form in HTML is to send a bunch of data into a specified URL by triggering a browser navigation event. What this means is that without the use of a library like Axios, your HTML forms will by default make the browser load a completely new page. 
+
+
+In the age of SPA's (Single Page Applications) where we want to provide a seamless navigation to the user without the constant full reloading of pages, this is not a great experience.
+
+2. Every. Single. Form - Needs a wrapping <form> tag. Screen readers often switch to "Forms mode" when they are processing content with <form> element. This gives users that use accessible technologies a better experience when navigating forms, and there is no reason to ever do it.
+
+3. There are many ways to trigger the submission of a form. A user can click or tab into a submit button and click it or hit enter. A user may also hit the enter key inside one of our fields. Screen readers will look for buttons with the type="submit" type on them. 
+
+How then do we correctly capture the user's attempt to submitting our form?
+
+
+##################
+The submit event
+##################
+
+Whenever a user submits a form within a wrapping form tag, this form tag emits a submit event that we can listen to - and even though it is a common practice to set a click listener to the submit button of a form, this should be avoided. 
+
+Listening to the click event of a button within the form tag (and preventing its default behavior) effectively blocks the default behavior of HTML form, which is to submit this submit event, and afterwards send this data within said form. However, it does not cover us from other possible ways of submitting said form, such as the ones we have learned about earlier.
+
+Lets navigate into our SimpleForm.vue
+
+As you can see, we already have our submit button set up with the type of submit to one of our buttons inside the form? 
+
+Browsers will assume that any buttons within form tags that don't have a set type are meant to submit the form, however the extra specificity will help accessibility tools to identify it as the button meant to be used to submit our form. 
+
+If our form required other types of buttons, such as cancel button, for example, adding the specific type="button" to it will effectively stop it from triggering the form's submit event.
+
+We can now go to our form tag and start listening to the @submit event of our form.
+
+## SimpleForm.vue -- begin
+[...]
+<form @submit.prevent="sendForm">
+[...]
+## SimpleForm.vue -- end
+
+
+Notice that we are listening to the event, let's go ahead and add our new sendForm method inside the script section of our SimpleForm.vue component.
+
+## SimpleForm.vue -- begin
+<script>
+export default{
+  data(){ ... },
+    methods: {
+       sendForm(){
+          // we will handle form submission here. !
+       }
+    }
+  }
+</script>
+
+## SimpleForm.vue -- end
+
+##############################
+Setting up Axios and our API
+##############################
+
+In order to be able to capture our user's input once they submit the form within our new sendForm method, we need to first get ourselves setup wtih both Axios - the library we discussed in the beginning of the lesson to make XHR requests - and an API endpoint where we can our dummy data to.
+
+Let's start with getting Axios set up.
+
+Head over to your terminal on the project root, and run the following command to add Axios to your project with your favorite package manager. 
+
+#####
+npm install axios
+
+// OR
+
+yarn add axios
+
+#####
+
+Once axios is done installing, we can head over to the top of the <script> block in our SimpleForm.vue and import the library so we can make use of it later. 
+
+## SimpleForm.vue -- begin
+<script>
+import axios from 'axios';
+
+export default{
+  [...]
+}
+</script>
+
+## SimpleForm.vue -- end
+
+Now that we have axios setup, we need to create an endpoint that will receive our data once the user has posted the form. In a real world scenario, this endpoint will usually be provided by the backend of your application, or by a third-party service such as FireBase.
+
+For the sake of learning, we are going to be using "My JSON Server" ("https://my-json-server.typicode.com/") - you will already be familiar with this if you've taken our Real World Vue 3 course - a free way to create our own fake online endpoint so that we can learn how to post our form.
+
+Setting up for your own GitHub repos is really easy, just go ahead and follow the instructions on their website and add a db.json file to the main or master branch of your repo, then you can access and use it through the URL structure that they provide as a REST API endpoint.  I have already gone ahead and created this for us, so that we can use it with the course's repo here on VM. The URL for our REST API is: 
+
+https://my-json-server.typicode.com/Code-Pop.Vue-3-Forms/
+
+When you open the server, you will notice that under resources we have events listed, with the following URL: 
+https://my-json-server.typicode.com/Code-Pop/Vue-3-Forms/events
+
+This is our API endpoint for events. I will not go into details of what a REST API is because that is completely out of the scope of this course - but unless you are a full-stack developer 
+
+
