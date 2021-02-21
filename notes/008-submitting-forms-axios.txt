@@ -112,6 +112,78 @@ https://my-json-server.typicode.com/Code-Pop.Vue-3-Forms/
 When you open the server, you will notice that under resources we have events listed, with the following URL: 
 https://my-json-server.typicode.com/Code-Pop/Vue-3-Forms/events
 
-This is our API endpoint for events. I will not go into details of what a REST API is because that is completely out of the scope of this course - but unless you are a full-stack developer 
+This is our API endpoint for events. I will not go into details of what a REST API is because that is completely out of the scope of this course - but unless you are a full-stack developer and are going to be creating the REST API on your own, the most important thing that you need to know at this moment is that we can grab this URL and make XHR requests to it. 
+
+In particular, when saving the data from a form you will always want to make a particular type of request - a POST request, which allows us to send a chunk of data back to the server with it.
+
+Let's swing back to the code and take a look at how to achieve sending our form's data to the REST API with axios.
+
+We are going to add an Axios POST call to our sendForm method.
+
+## SimpleForm.vue -- begin
+
+sendForm(e){
+axios.post(
+   'https://my-json-server.typicode.com/Code-Pop/Vue-3-Forms/events',
+   this.event
+)
+.
+then(function(response){
+   console.log('Response',response)
+})
+.catch(function(err){
+  console.log('Error',err)
+})
+}
+
+
+## SimpleForm.vue -- end
+
+Since we already imported Axios, we can access its post method directly from the axios object. 
+
+
+The first argument that it requires is the URL onto where its going to send the information, in this case, the one provided to us for the vevents endpoint of our my-json-server mock API.
+
+The second argument is the payload, an object containing all the information we want to send over to the server. Since, we already have all the form's information neatly wrapped into our event data object, we can make use of it directly here and just send it as it is to the server.
+
+Be warned! In a real life scenario, you will want to validate your users input before sending it to the server even if your backend is going to perform server-side validation. Doing a pre-validation on the frontend, or client-side validation, is highly recommended practice.
+
+In general, any type of pre-checks or UX changes you want to make while the form is posting should be done here in the sendForm method. Displaying a loading spinner, or changing the text of the submit button to "Sending" are few nice UX tricks you can leverage at this state.
+
+Validations and UX are out of the scope of this lesson though, so we are going to skip them for now, and revisit in another course for more advanced form topics.
+
+An important thing to know is that Axios methods return JavaScript Promises. This means that we can append a then method to our post call that will return the response from the server for us to work with - and a catch method that we can use to handle any errors that may occur when sending the data.
+
+For the purposes of this lesson, we are only going to console log the results here to see both of these methods in action. 
+
+
+Back to the browser
+====================
+
+Now that our submit function is ready, and after we've learned all that theory, we are finally ready to go back to the browser and test out our form. Serve your project and fill out the form, make sure you have the network tab open in your browser so you can see the requests going out - and finally hit that submit button to see all the information swiftly sent to our API.
+
+In the network tab we can see our successful request and response, mirroring our payload.
+
+And in the console, our log with the full response data.
+
+
+Wrapping up
+===========
+
+There is a lot of theory! But we now have a fully functional form that submits data to our server.
+
+There's one more thing though - arguably one of the most important bits of all.
+
+A few lessons ago I mentioned that our components were not accesible, and while in real life scenario accessibilty should be a main consideration while developing your components, it simply was too much information to put on top of our previous lessons.
+
+We're now ready to circle back and take a look at some basic accessibility concepts that you should always keep in mind when building forms in Vue.
+
+See you there !
+
+
+
+
+
+
 
 
