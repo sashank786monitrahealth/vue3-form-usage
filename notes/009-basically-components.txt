@@ -1,0 +1,20 @@
+#################################
+## Basically for our components
+#################################
+
+Welcome..
+
+At the end of the last lesson we discussed the importance of incorporating accessibility into your first round of developement. I cannot stress enough: Accessibility is not a secondary task that you come back to after your app is working. It is a primary concern that needs to be addressed as part of your development process.
+
+In this course I decided to keep it separate for educational reasons, introducing one concept at a time and building upon those concepts incrementally. We now have the conceptual groundwork laid out to add in our accessibility features. 
+
+We will go over what I consider some of the very basic accessibility concepts that you need to keep fresh in mind when developing forms. These concepts are not technically Vue-specific, but we will learn how to apply them in the context of our view form components.
+
+Lets dive right in.
+
+########################
+### Appropriate Types
+########################
+
+In HTML we have a wide variety of input elements to craft our forms, but one element in particular rules them all. The catch-all input allows us the flexibility of creating text inputs, but we can also transform it into checkboxes and radio buttons with the type property. 
+
