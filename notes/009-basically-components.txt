@@ -148,6 +148,117 @@ For our current form in SimpleForm.vue, we can wrap up our logical sections insi
 We can add the style tag to remove the default borders and margins, and to style the legend tags as we had the headers before.
 
 
+#### SimpleForm.vue  -- begin
+<style>
+fieldset{
+  border:0;
+  margin:0;
+  padding:0;
+  
+}
+
+legend{
+
+ font-size: 28px;
+ font-weight: 700;
+ margin-top: 20px;
+
+}
+
+</style>
+
+#### SimpleForm.vue  -- end
+
+
+I'm going to use Firefox this time as it has a very nice accessibility inspector tool.
+
+Check the accesssibility tab, you can see how now the logical grouping of our form will be.
+
+##############################################
+## DO NOT RELY ON PLACEHOLDERS
+##############################################
+
+A popular design pattern that emerged a few years ago used the placeholder attribute of inputs to describe the type of content that the element was expecting.Sadly this is still sometimes used now-a-days instead of a proper label.
+
+Placeholders should only be used to describe the intended value, but not as a replacement for a descriptive label. Placeholders disappear whenever a user starts typing into the field, forcing the user to keep in mind what the field was expecting. Aditionally, some users can have problems differentiating between a field with a placeholder and a field that has pre-populated or filled content. 
+
+As far as screen readers go, each screen reader may treat the placehoder attribute differently, but as long as correctly set label is in place, it should not be much of a concern to leave it in.
+
+
+
+#########
+## Labels
+#########
+
+Speaking about labels, let us talk about a really powerful accessibility feature that is sadly, very commonly underused, or misused in forms.
+
+If we navigate to firefox again in the accessibility tab and inspect our Title input, we can see a <warning> icon right next to it. This means we have a problem.
+
+Let us take a look at the information panel. The checks section is already telling us the issue: "Form elements should have a visible text label."
+
+This may come as a surprise, since our Title field clearly has a label on top of it describing what we intend for this input.
+
+Title:
+  #####
+  
+  
+For our sighted users, however, this is not evident. We have not yet linked these two HTML elements together, and that is an assumption that a screen reader cannot afford to make. Thankfully, this is a very easy fix!
+
+There are a few ways to link an input element with its label, the first one is to actually nest the input inside of the label element.
+
+<label>
+   <input/>
+</label>
+
+
+This is one of the easiest ways to make sure that your input is always correctly linked to the related label, but, i want to go into depthinto the second and usually more "common" way to relate HTML elements because it's going to come in handy later when we look at error messages. This method involves using IDs.
+
+Let's jump directly into our BaseInput component and figure out how to create a relationship between our <label> and <input> by using an ID.
+
+You may be thinking that perhaps the most obvious option would be to add a property, so that the parent can determine the id of the element, and then we don't have to worry about it inside our compoenent. And you would be right... But what if there were a way we could dynamically generate unique number identifiers for every component in our form without having to resort to manual props?
+
+We are going to create a Vue3 composable that allows us to create these dynamic unique identifiers, or UUIDs for short. I know this is bit of a jump from the pace of the course, but if you need a refresher on Vue 3 composition API or composables we have a course titled Build a Gmail clone with Vue 3 - here on Vue Mastery to get you up to speed. At any rate, don't worry too much, it's going to be a really simple one.
+
+If you are following along with the repository files, I have gone ahead and created a UniqueID.js file inside the features folder. Let's take a look:
+
+### UniqueID.js -- begin
+let UUID = 0
+
+export default function UniqueID(){
+   const getID = () => {
+      UUID++
+      return UUID
+   }
+   
+   return {
+     getID
+   }
+}
+### UniqueID.js -- end
+
+First we declare a let variable with a default value of 0. This will increase as we create more and more components - the first component will have an id of 1, the second of 2, and so on.
+
+We are going to export a function UniqueID, When executed, this function will return an object, which contains a function under the property getID. This function will increase by 1 the global UUID counter and return it.
+
+
+Know also that there are a plenty of UUID libraries out there that you can use in this place of this custom solution, but I wanted to show you just how easy it can be.
+
+Let's look at this in action to better understand it, by looking at BaseInput.vue.
+
+First, we are going to import our new composable.
+
+## BaseInput.vue -- begin
+<script>
+  import UniqueID from "../features/UniqueID";
+  export default {...}
+</script>
+
+## BaseInput.vue -- end
+
+Now that we have it ready, we can generate a new unique ID inside our component's setup method. Let's go ahead and do that.
+
+
+
 
 
 
