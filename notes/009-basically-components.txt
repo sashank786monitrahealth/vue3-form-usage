@@ -71,8 +71,81 @@ Later on, another section may ask them for a shipping address.
 
 For accessible users, this information may not be as immediately available without having to tab through the whole form. This is where <fieldset> and <legend> comes to play.
 
+You should always try to wrap up sections of your form inside a fieldset element. This will logically group the inputs inside of it. Then, the first element of a fieldset will be a legend element which will provide a Title for that particular fieldset.
+
+If for some reason, you don't want the legend to show on your form (usually because of design reasons), you can always position it absolutely, outside of the visible screen. 
+
+For our current form in SimpleForm.vue, we can wrap up our logical sections inside fieldset like in the following example:
 
 
+#### SimpleForm.vue  -- begin
+<template>
+  <div>
+     <h1>Create an event</h1>
+     
+     <form @submit.prevent="sendForm">
+     
+     <BaseSelect
+        :options="categories"
+        v-model="event.category"
+        label="Select a Category"
+     />
+     
+     <fieldset>
+     <legend> Where is your event? </legend>
+     <BaseInput
+       v-model="event.title"
+       label="Title"
+       type="text"
+     />
+     
+     <BaseInput
+       v-model="event.description"
+       label="Title"
+       type="text"
+     />
+     
+     <BaseInput
+        v-model="event.description"
+        label="Description"
+        type="text"
+     />
+     
+     </fieldset>     
+     
+     <fieldset>
+        <legend>Pets</legend>
+        <p>Are pets allowed?</p>
+        
+        <div>
+          <BaseRadioGroup
+             v-model="event.pets"
+             name="pets"
+             :options="petOptions"
+          />
+        </div>
+     </fieldset>
+     
+     <fieldset>
+       <legend>Extras</legend>
+       <div>
+         <BaseCheckbox
+            v-model="event.extas.music"
+            label="Live Music"
+         />
+       </div>
+     </fieldset>
+     
+     <button type="submit">Submit</button>
+     
+     </form>
+     
+     <pre>{{event}}</pre>
+  </div>
+</template>
+#### SimpleForm.vue  -- end
+
+We can add the style tag to remove the default borders and margins, and to style the legend tags as we had the headers before.
 
 
 
