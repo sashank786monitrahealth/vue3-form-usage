@@ -258,6 +258,240 @@ First, we are going to import our new composable.
 Now that we have it ready, we can generate a new unique ID inside our component's setup method. Let's go ahead and do that.
 
 
+## BaseInput.vue -- begin
+<script>
+  import UniqueID from "../features/UniqueID";
+  export default {
+     props:{...},
+     setup(){
+       const uuid = UniqueID().getID()
+       return{
+         uuid
+       }
+     }
+  }
+</script>
+## BaseInput.vue -- end
+
+
+Notice that we are executing both the UniqueID composable, and then the getID method inside. This will give us a completely unique ID number everytime a component has been instantiated.
+
+Finally, we return an object with the uuid so that we can use it in our template. 
+
+Speaking of which, let's go back into the template and tie the label and input together. 
+
+To accomplish this, we need to give the input element an id attribute value. We will bind the id to our uuid. After we have the input setup with its own unique ID, we can now tell the label that its describing the input by setting the for attribute of the label.
+
+Note: All of these are vanilla HTML attributes, no crazy Vue magic here other than the ease of binding all of them.
+
+## BaseInput.vue -- begin
+<template>
+<label :for="uuid" v-if="label"> {{ label }} </label>
+<input
+  v-bind = "$attrs"
+  :value="modelValue"
+  :placeholder="label"
+  @input="$emit('update:modelValue', $event.target.value)"
+  class="field"
+  :id="uuid"
+>
+</template>
+
+## BaseInput.vue -- end
+
+Let's head back to the browser. The first thing I want to point to you is that the warning sign on our field is gone. And if we check under the bit where it says relations inside the accessible properties, we can see now that it shows a new entry: labelledby: "Title". If you hover over this element you can now see in the browser which element exactly it is referring to. Neat, right?
+
+Now, if we take a look at the inspector tab, and we look at our input elements, we can see that they have automatically been assigned ids 1 and 2 respectively. 
+
+We still need to add a uuid to our Checkbox, Radio and Select components. Are you up for a challenge? Try doing this bit yourself. It will be as straightforward as replicating exactly what we just did here with BaseInput.
+
+
+##################################
+## Accessible Errors
+##################################
+Have you ever filled out a form just to hit the submit button and nothing seemed to work? It was clearly not submitting, and there was no visible error anywhere, yet something was clearly wrong. This situation is not foreign to most Internet users, but imagine the exasperation when you require accessible tools and the form does not easily tell you what's wrong with your inputs.
+
+Let's first go into our BaseInput.vue component and add a new prop, error, that will allow us to set a String with an error message in case the component is in an error state. 
+
+### BaseInput.vue -- begin
+props: {
+  label: {
+     type: String,
+     default: ''
+  },
+  modelValue:{
+     type: [String, Number],
+     default: ''
+  },
+  error:{
+    type: String,
+    default: ''
+  }
+},
+
+### BaseInput.vue -- end
+
+We will display this error below our input field whenever an error is present, so if the error property is set to anything other than an empty string. 
+
+### BaseInput.vue -- begin
+<template>
+    <label  :for="uuid" v-if="label">{{label}}</label>
+    <input
+      v-bind="$attrs"
+      :value="modelValue"
+      :placeholder="label"
+      @input="$emit('update:modelValue', $event.target.value)"
+      class="field"
+      :id="uuid"
+    />
+    <p
+      v-if="error"
+      class="errorMessage"
+    >
+    {{error}}
+    </p>
+</template>
+
+### BaseInput.vue -- end
+
+We will also go back to SimpleForm.vue and add an error message to our "Title" input, so that we can see how it behaves on the browser. Note that we also added a class of errorMessage that will simply color it red.
+
+## SimpleForm.vue -- begin
+<BaseInput
+   v-model="event.title"
+   label="Title"
+   type="text"
+   error="This input has an error!"
+/>
+## SimpleForm.vue -- end
+
+
+Now let's look at the browser, the error is correctly displaying under the title once the error prop is set. Notice that the "Description" input which is also a BaseInput is displaying no error because the prop error is not set to anything.
+
+
+If we open our Accessibility tab in Firefox once again and inspect the input element, we can see that there is nothing tying the error to the actual title input. This is where most forms fall short. Just because the error message is "near" the input doesn't mean that a screenreader will be able to identify it as part of the error.
+
+Luckily there is a straightforward solution to this problem: the aria-describedby attribute. This attribute allows us to declare directly on the input element which other elements describe it.
+
+The attribute can take a string list of IDs for other HTML elements in the page, so first we are going to add a unique ID to our label. Luckily, we already have a UUID number associated with the instance of the componenet to do it.
+
+
+Let's head back to BaseInput and add the id binding to the error p tag.
+
+## BaseInput.vue -- begin
+<p
+  v-if="error"
+  class="errorMessage"
+  :id="`${uuid}-error`"
+>
+{{error}}
+</p>
+## BaseInput.vue -- end
+
+Notice that we are appending the -error string to the UUID. We need this identifier to be unique, and the UUID by itself is already in use by the input.
+
+Now that our error message has a unique ID, we can set it as a "description" for the input element with the aria-describedby attribute.
+
+
+#BaseInput.vue -- begin
+<template>
+<label :for="uuid" v-if="label">{{label}}</label>
+<input
+  v-bind="$attrs"
+  :value="modelValue"
+  :placeholder="label"
+  @input="$emit('update:modelValue', $event.target.value)"
+  class="field"
+  :id="uuid"
+  :aria-describedby="error ? `${uuid}-error`:null"
+>
+<p
+  v-if="error"
+  class="errorMessage"
+  :id="`${uuid}-error`"
+>
+{{error}}
+</p>
+</template>
+
+#BaseInput.vue -- end
+
+
+Notice that we are adding a secondary check to see if error is set. This allows us a bit a relationship hygiene between our elements - when no error is present, no error message will be displayed and the id will point to nothing.
+
+If we check our browsers again, we can see that when the error is present, a new described by entry is present in the input's relationship object. One more thing though... Because we are adding v-if to display this information on and off, we want to make sure that screen readers announce/read it whenever it becomes displayed. To do this, we're going to add an attribute of aria-live="assertive". Another way would be to add a role attribute of "alert", but I have found that the aria-live tends to work better with a variety of screen readers.
+
+## BaseInput.vue -- begin
+<p
+  v-if="error"
+  class="errorMessage"
+  :id="${uuid}-error"
+  aria-live="assertive"
+>
+  {{error}}
+</p>
+
+## BaseInput.vue -- end
+
+
+##############################
+### Explicit Input State
+##############################
+
+Another thing we can quickly add to our input to make it even more accessible is the aria-invalid attribute. A mistake that I've seen so many forms make is to try and rely on a red border around an invalid input. For obvious reasons, this is not accessible.
+
+We have already taken steps into accssible errors, but let's make sure to also notify screen readers on the invalid state of an input to provide better feedback to our users. 
+
+We are going to add the aria-invalid attribute to our input, and toggle it off and on depending on whether the error prop is set. When the input is valid, null will make it so that the attribute is not added to the input element.
+
+### BaseInput.vue -- begin
+<input
+  v-bind="$attrs"
+  :value="modelValue"
+  :placeholder="label"
+  @input="$emit('update:modelValue',$event.target.value)"
+  class="field"
+  :id="uuid"
+  :aria-describedby="error?`${uuid}-error`:null"
+  :aria-invalid="error ? true : null"
+>
+### BaseInput.vue -- end
+
+If we go back to the browser and inspect the input using the Accessibility tool on Firefox, we can see that the state of "invalid" has now been added to the active states of the input.
+
+Other noteworthy states that we could also add attributes for are readonly, disabled and required. These three can be set directly with HTML5 attributes of the same name, or with their aria counterparts: aria-readonly, aria-disabled and aria-required.
+
+
+##############################################
+### Don't disable the submit button  --begin
+##############################################
+
+If a form is not valid, then it makes sense to set the disabled attribute to true on the submit button so that the user cannot submit the form, right? We can even style the button with a different color to convey that it won't be clickable.
+
+There's a big 	problem with this though. Users that rely on screen-readers will not get feedback at all, the button will be completely ignored by the screen-reader when tabbing through the form. This clearly can be very confusing and frustrating.
+
+I suggest instead that you make any and all checks to make sure your form is valid before submitting it on the sendForm method that we created on the SimpleForm component. If everything checks out, we submit the form normally.
+
+If something is wrong, then set the necessary errors in your form with the tools that we just learned to notify the user that something is wrong.
+
+
+####################################
+##  Wrapping up 
+####################################
+
+As you can see, with a few quick lines of HTML and some strategically placed props, we managed to turn around our BaseInput component into something a lot more accessible. 
+
+I do want to stress though, that as far as the topic of accessibilty goes, this only begins to scratch the surface. But with these few tips, you should be able to set the course for a more inclusive and accessible form for your projects!
+
+
+
+##############################################
+### Don't disable the submit button  --end
+##############################################
+
+
+
+
 
 
 
